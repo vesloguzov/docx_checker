@@ -1,0 +1,9 @@
+/* CSS for DocxCheckerXBlock */
+
+.docx_checker_block .count {
+    font-weight: bold;
+}
+
+.docx_checker_block p {
+    cursor: pointer;
+}
