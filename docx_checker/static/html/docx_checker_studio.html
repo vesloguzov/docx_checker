@@ -1,16 +1,168 @@
-<div class="docx_checker_block">
 
-<form enctype="multipart/form-data" class="correct">
-<label class="label setting-label">Корректный файл:</label>
-	<input type="file" class="correct-file" name="correctFile"/>
- <input type="button" value="Upload" />
- <!--<button class="submit correct">Загрузить</button>-->
- </form>
- <progress></progress>
+<div class="docx_checker_studio">
+<div class="wrapper-comp-settings editor-with-buttons is-active" id="settings-tab">
+    
+    <ul class="list-input settings-list">
+
+  <div id="main-settings">
+		<div class="docx_checker_block_correct">
+
+		<form enctype="multipart/form-data" class="correct">
+			<h2>Загрузка корректного файла</h2>
+			<input type="file" class="correct-file" name="correctFile"/>
+			<input type="button" value="Загрузить"  class="upload-correct-file"/>
+		</form>
+		<div class="docx-analyse">
+			
+			<li class="field comp-setting-entry is-set">
+		        <div class="wrapper-comp-setting">
+		        <label class="label docx-setting-label" for="sequence">Проверять стиль "Заголовок 1_ФИО":</label>
+		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
+		      	</div>
+	    	</li>
+
+	    	<li class="field comp-setting-entry is-set">
+		        <div class="wrapper-comp-setting">
+		        <label class="label docx-setting-label" for="sequence">Проверять стиль "Основной_ФИО":</label>
+		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
+		      	</div>
+	    	</li>
+
+			<li class="field comp-setting-entry is-set">
+		        <div class="wrapper-comp-setting">
+		        <label class="label docx-setting-label" for="sequence">Проверять создание предметного указателя:</label>
+		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
+		      	</div>
+	    	</li>
+
+			<li class="field comp-setting-entry is-set">
+		        <div class="wrapper-comp-setting">
+		        <label class="label docx-setting-label" for="sequence">Проверять нумерацию:</label>
+		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
+		      	</div>
+	    	</li>
+
+			<li class="field comp-setting-entry is-set">
+		        <div class="wrapper-comp-setting">
+		        <label class="label docx-setting-label" for="sequence">Проверять верхний колонтитул:</label>
+		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
+		      	</div>
+	    	</li>
+
+			<li class="field comp-setting-entry is-set">
+		        <div class="wrapper-comp-setting">
+		        <label class="label docx-setting-label" for="sequence">Проверять нижний колонтитул:</label>
+		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
+		      	</div>
+	    	</li>
+
+			<li class="field comp-setting-entry is-set">
+		        <div class="wrapper-comp-setting">
+		        <label class="label docx-setting-label" for="sequence">Проверять оглавление:</label>
+		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
+		      	</div>
+	    	</li>
+
+			<li class="field comp-setting-entry is-set">
+		        <div class="wrapper-comp-setting">
+		        <label class="label docx-setting-label" for="sequence">Проверять разрывы страниц</label>
+		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
+		      	</div>
+	    	</li>
+
+			<li class="field comp-setting-entry is-set">
+		        <div class="wrapper-comp-setting">
+		        <label class="label docx-setting-label" for="sequence">Проверять сноски</label>
+		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
+		      	</div>
+	    	</li>
+
+	   		<li class="field comp-setting-entry is-set">
+		        <div class="wrapper-comp-setting">
+		        <label class="label docx-setting-label" for="sequence">Проверять поля</label>
+		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
+		      	</div>
+	    	</li>
+
+		</div>
+		</div>
+
+		<div class="docx_checker_block_source">
+			<form enctype="multipart/form-data" class="source">
+				<h2>Загрузка исходного файла для студента:</h2>
+				<input type="file" class="source-file" name="sourceFile"/>
+				<input type="button" value="Загрузить"  class="upload-source-file"/>
+			</form>
+
+		</div>
+  </div>
+
+  <div id="scenario-settings" hidden="true">
+
+      <li class="field comp-setting-entry is-set">
+        <div class="wrapper-comp-setting">
+          <label class="label setting-label" for="display_name">Название:</label>
+          <input class="input setting-input" name="display_name" id="display_name" value="{{display_name}}" type="text" />
+        </div>
+      </li>
+
+          <li class="field comp-setting-entry is-set">
+        <div class="wrapper-comp-setting">
+          <label class="label setting-label" for="question-area">Вопрос:</label>
+          <textarea id="question-area" class="input setting-input" name="question" rows=2 cols=50>{{question}}</textarea>
+        </div>
+      </li>
+
+      <li class="field comp-setting-entry is-set">
+        <div class="wrapper-comp-setting">
+          <label class="label setting-label" for="weight">Максимальное количество баллов (0-100):</label>
+          <input class="input setting-input" name="weight" id="weight" value="{{weight}}" type="number" min="0" max="100" />
+        </div>
+      </li>
+
+      <li class="field comp-setting-entry is-set">
+        <div class="wrapper-comp-setting">
+          <label class="label setting-label" for="max_attempts">Количество попыток:</label>
+          <input class="input setting-input" name="max_attempts" id="max_attempts" value="{{max_attempts}}" type="number" min="0" />
+          </div>
+        </li>
+
+  </div>
+
+  <div id="advanced-settings" hidden="true">
+      
+      <li class="field comp-setting-entry is-set">
+        <div style="display: inline !important; margin-right: 5% !important;" class="wrapper-comp-setting">
+          <label class="label setting-label" for="main_line_thickness">Размытие основной линии:</label>
+          <input style="width: 15% !important;" class="input setting-input" name="main_line_thickness" id="main_line_thickness" value="{{main_line_thickness}}" type="number" min="5" max="100" />
+        </div>
+        
+        <div style="display: inline !important; margin-right: 5% !important;" class="wrapper-comp-setting">
+          <label class="label setting-label" for="main_line_coefficient">Коэффициент основной линии:</label>
+          <input style="width: 15% !important;" class="input setting-input" name="main_line_coefficient" id="main_line_coefficient" value="{{main_line_coefficient}}" type="number" min="1" max="100" />
+        </div>
+      </li>
+      
 
 
- <!--<label class="label setting-label">Файл для студента:</label>
-	<input type="file" class="student-file"/>
- <button class="submit student">Загрузить</button> -->
 
+
+
+  </div>
+
+
+</ul>
+
+
+  <div class="xblock-actions">
+    <ul>
+      <li class="action-item">
+        <a href="#" class="button action-primary save-button">Save</a>
+      </li>
+      <li class="action-item">
+        <a href="#" class="button cancel-button">Cancel</a>
+      </li>
+    </ul>
+  </div>
+</div>
 </div>
