@@ -1,8 +1,9 @@
 /* Javascript for DocxCheckerXBlock. */
 function DocxCheckerXBlock(runtime, element) {
 
-   // var downloadUrl = runtime.handlerUrl(element, 'download_assignment');
-    //console.log(downloadUrl)
+   var downloadUrl = runtime.handlerUrl(element, 'download_assignment');
+   console.log(downloadUrl)
+   
     function updateCount(result) {
         $('.count', element).text(result.count);
     }

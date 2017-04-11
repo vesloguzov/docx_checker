@@ -176,15 +176,11 @@ class DocxCheckerXBlock(XBlock):
 
     @XBlock.handler
     def download_assignment(self, request, suffix=''):
-        path = _file_storage_path(
-            self.location.to_deprecated_string(),
-            self.uploaded_sha1,
-            self.uploaded_filename
-        )
+        path = self._file_storage_path(os.path.splitext(self.source_docx_path)[0], self.source_docx_path)
         return self.download(
             path,
-            self.uploaded_mimetype,
-            self.uploaded_filename
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            self.source_docx_path
         )
 
     def is_course_staff(self):
@@ -213,9 +209,12 @@ class DocxCheckerXBlock(XBlock):
         path = self._file_storage_path(sha1, upload.file.name)
         if not default_storage.exists(path):
             default_storage.save(path, File(upload.file))
-        self.source_docx_path = path
+        self.source_docx_path = '{filename}{ext}'.format(
+            filename=sha1, 
+            ext=os.path.splitext(upload.file.name)[1]
+            )
 
-        return Response(json_body=str(path))
+        return Response(json_body=str(self.source_docx_path))
 
     def _file_storage_path(self, sha1, filename):
         # pylint: disable=no-member
@@ -231,6 +230,35 @@ class DocxCheckerXBlock(XBlock):
             )
         )
         return path
+
+
+    def download(self, path, mime_type, filename, require_staff=False):
+        """
+        Return a file from storage and return in a Response.
+        """
+        print('!!!!!!!!!!', default_storage.url(filename))
+        # try:
+        file_descriptor = default_storage.open(path)
+        app_iter = iter(partial(file_descriptor.read, BLOCK_SIZE), '')
+        return Response(
+            app_iter=app_iter,
+            content_type=mime_type,
+            content_disposition="attachment; filename=" + filename.encode('utf-8'))
+        # except IOError:
+        #     if require_staff:
+        #         return Response(
+        #             "Sorry, assignment {} cannot be found at"
+        #             " {}. Please contact {}".format(
+        #                 filename.encode('utf-8'), path, settings.TECH_SUPPORT_EMAIL
+        #             ),
+        #             status_code=404
+        #         )
+        #     return Response(
+        #         "Sorry, the file you uploaded, {}, cannot be"
+        #         " found. Please try uploading it again or contact"
+        #         " course staff".format(filename.encode('utf-8')),
+        #         status_code=404
+        #     )
 
 
 def _get_sha1(file_descriptor):
@@ -267,3 +295,4 @@ def require(assertion):
     """
     if not assertion:
         raise PermissionDenied
+
