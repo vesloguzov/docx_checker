@@ -1,4 +1,4 @@
-"""TO-DO: Write a description of what this XBlock is."""
+# -*- coding: utf-8 -*-
 
 import pkg_resources
 
@@ -56,6 +56,37 @@ class DocxCheckerXBlock(XBlock):
          help='Correct file from student',
         )
 
+    display_name = String(
+        display_name=u"Название",
+        help=u"Название задания, которое увидят студенты.",
+        default=u'Проверка стилевого оформления',
+        scope=Scope.settings
+    )
+
+    question = String(
+        # TODO: list
+        display_name=u"Вопрос",
+        help=u"Текст задания.",
+        default=u"",
+        scope=Scope.settings
+    )
+
+    weight = Integer(
+        display_name=u"Максимальное количество баллов",
+        help=(u"Максимальное количество баллов",
+              u"которое может получить студент."),
+        default=10,
+        scope=Scope.settings
+    )
+
+    #TODO: 1!
+    max_attempts = Integer(
+        display_name=u"Максимальное количество попыток",
+        help=u"",
+        default=10,
+        scope=Scope.settings
+    )
+
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
         data = pkg_resources.resource_string(__name__, path)
@@ -89,6 +120,12 @@ class DocxCheckerXBlock(XBlock):
         return fragment
 
     def studio_view(self, context=None):
+        context = {
+            "display_name": self.display_name,
+            "weight": self.weight,
+            "question": self.question,
+            "max_attempts": self.max_attempts
+        }
         fragment = Fragment()
         fragment.add_content(
             render_template(
@@ -127,6 +164,15 @@ class DocxCheckerXBlock(XBlock):
                 </vertical_demo>
              """),
         ]
+
+    @XBlock.json_handler
+    def studio_submit(self, data, suffix=''):
+        self.display_name = data.get('display_name')
+        self.question = data.get('question')
+        self.weight = data.get('weight')
+        self.max_attempts = data.get('max_attempts')
+
+        return {'result': 'success'}
 
     @XBlock.handler
     def download_assignment(self, request, suffix=''):
