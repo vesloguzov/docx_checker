@@ -1,25 +1,42 @@
 /* Javascript for DocxCheckerXBlock. */
 function DocxCheckerXBlock(runtime, element) {
-
    var downloadUrl = runtime.handlerUrl(element, 'download_assignment');
-   console.log(downloadUrl)
+   console.log()
+   var studentFileUrl = runtime.handlerUrl(element, 'upload_student_file');
+
+   $('#download-file', element).attr('href',downloadUrl);
+
    
-    function updateCount(result) {
-        $('.count', element).text(result.count);
+    function successLoadStudentFile(result) {
+        alert('Файл успешно загружен');
     }
 
-    var handlerUrl = runtime.handlerUrl(element, 'increment_count');
-
-    $('p', element).click(function(eventObject) {
+    $(':button.upload-student-file').on('click', function() {
         $.ajax({
-            type: "POST",
-            url: handlerUrl,
-            data: JSON.stringify({"hello": "world"}),
-            success: updateCount
+            url: studentFileUrl,
+            type: 'POST',
+            data: new FormData($('form.student')[0]),
+            cache: false,
+            contentType: false,
+            processData: false,
+            xhr: function() {
+                var myXhr = $.ajaxSettings.xhr();
+                if (myXhr.upload) {
+                    myXhr.upload.addEventListener('progress', function(evt) {
+                        if (evt.lengthComputable) {
+                            //Сделать лоадер
+                        }
+                    } , false);
+                }
+                return myXhr;
+            },
+            success: successLoadStudentFile
+
         });
     });
 
     $(function ($) {
         /* Here's where you'd do things on page load. */
     });
+   
 }

@@ -1,11 +1,39 @@
 /* Javascript for DocxCheckerXBlock. */
 function DocxCheckerXBlockEdit(runtime, element) {
-
+ $("#file-analyse-result", element).hide()
     function successLoadCorrectFile(result) {
+        alert('Файл успешно загружен');
         console.log(result)
+ $("#file-analyse-result", element).show()
+        $("#file-analyse-result", element).empty()
+        $("#file-analyse-result", element).append( "<h3>Анализ файла</h3>")
+        $("#file-analyse-result", element).append( "<p>"+"Автор документа: " + result["general_properties"]["author"]+ "</p>")
+        $("#file-analyse-result", element).append( "<p>"+"Последнее изменение пользователем: " + result["general_properties"]["last_modified_by"]+ "</p>")
+        $("#file-analyse-result", element).append( "<p>"+"Дата последнего изменения: " + result["general_properties"]["modified"]+ "</p>")
+        $("#file-analyse-result", element).append( "<p>"+"Меню создано: " + (result["menu_item_count"]>0)+ "</p>")
+        if(result["custom_styles"]["header_style"]){
+        $("#file-analyse-result", element).append( "<p>"+"Стиль заголовка: " + result["custom_styles"]["header_style"]["name"]+ "</p>")
+        $("#file-analyse-result", element).append( "<p>"+"Стиль заголовка. Шрифт полужирный: " + result["custom_styles"]["header_style"]["font_bold"]+ "</p>")
+        $("#file-analyse-result", element).append( "<p>"+"Стиль заголовка. Шрифт наклонный: " + result["custom_styles"]["header_style"]["font_italic"]+ "</p>")
+        $("#file-analyse-result", element).append( "<p>"+"Стиль заголовка. Имя шрифта: " + result["custom_styles"]["header_style"]["font_name"]+ "</p>")
+        $("#file-analyse-result", element).append( "<p>"+"Стиль заголовка. Выравнивание: " + result["custom_styles"]["header_style"]["alignment"]+ "</p>")
+        }
+        else{
+            $("#file-analyse-result", element).append( "<p>"+"Пользовательского стиля заголовка нет!"+ "</p>")
+        }
+        $("#file-analyse-result", element).append( "<p>"+"Верхний колонтитул: " + result["document_header"]+ "</p>")
+        $("#file-analyse-result", element).append( "<p>"+"Заголовки: " + result["document_headers_texts"].join(", ")+ "</p>")
+        $("#file-analyse-result", element).append( "<p>"+"Нумерация страниц: " + result["document_page_numbering"]+ "</p>")
+        $("#file-analyse-result", element).append( "<p>"+"Отступ слева: " + result["margins"]["left"]+ "</p>")
+        $("#file-analyse-result", element).append( "<p>"+"Отступ справа: " + result["margins"]["right"]+ "</p>")
+        $("#file-analyse-result", element).append( "<p>"+"Отступ верх: " + result["margins"]["top"]+ "</p>")
+        $("#file-analyse-result", element).append( "<p>"+"Отступ низ: " + result["margins"]["bottom"]+ "</p>")
+
+        
     }
     
     function successLoadSourceFile(result) {
+        alert('Файл успешно загружен');
         console.log(result)
     }
 

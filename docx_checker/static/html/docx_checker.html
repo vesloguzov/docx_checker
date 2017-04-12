@@ -1,5 +1,20 @@
-<div class="docx_checker_block">
+<div class="problem">
+        <h2 class="problem-header">{{display_name}}</h2>
+        {% if question != '' and question != "None" %}
+            <div id="question">{{question|safe}}</div>
+        {% endif %}
+        <img style="width: 40px !important;" src="http://icons.iconarchive.com/icons/carlosjj/microsoft-office-2013/256/Word-icon.png"/>
+		<a id="download-file">Скачать исходный файл</a></p>
 
-<a href="{{download_file}}">File</a></p>
-
+<div class="upload-block">
+		<form enctype="multipart/form-data" class="student">
+			<h2>Загрузить отредактированный файл</h2>
+			<input type="file" class="student-file" name="studentFile"/>
+			<input type="button" value="Загрузить"  class="upload-student-file"/>
+		</form>
 </div>
+
+     <div class="problem-progress">
+            <me-span class="weight">(Максимальное кoличество баллов: {{weight}})</me-span>
+</div> 
+

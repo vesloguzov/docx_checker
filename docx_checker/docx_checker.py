@@ -45,10 +45,20 @@ class DocxCheckerXBlock(XBlock):
          default='', scope=Scope.settings,
          help='Correct file from teacher',
         )
-
+    
+    correct_docx_object = String(
+         default='', scope=Scope.settings,
+         help='Correct file from teacher',
+        )
+    
     source_docx_path = String(
          default='', scope=Scope.settings,
          help='Unformatted file for student',
+        )
+
+    source_docx_name = String(
+         default='', scope=Scope.settings,
+         help='Name of unformatted file for student',
         )
 
     student_docx_path = String(
@@ -67,7 +77,7 @@ class DocxCheckerXBlock(XBlock):
         # TODO: list
         display_name=u"Вопрос",
         help=u"Текст задания.",
-        default=u"",
+        default=u"<h3>Лабораторная работа включает в себя следующие элементы:</h3><ol><li>Работа со стилями. Создание стиля для основного текста и для заголовков.</li><li>Оформление документа (установка полей, нумерации страниц, разрывов страниц, заполнение верхнего колонтитула).</li><li>Создание сноски.</li><li>Создание предметного указателя.</li><li>Создание оглавления.</li><li>Оформление титульного листа.</li>",
         scope=Scope.settings
     )
 
@@ -95,7 +105,10 @@ class DocxCheckerXBlock(XBlock):
     # TO-DO: change this view to display your data your own way.
     def student_view(self, context=None):
         context = {
-            "download_file": self.source_docx_path
+            "display_name": self.display_name,
+            "weight": self.weight,
+            "question": self.question,
+            "max_attempts": self.max_attempts
         }
 
         fragment = Fragment()
@@ -124,7 +137,7 @@ class DocxCheckerXBlock(XBlock):
             "display_name": self.display_name,
             "weight": self.weight,
             "question": self.question,
-            "max_attempts": self.max_attempts
+            "max_attempts": self.max_attempts,
         }
         fragment = Fragment()
         fragment.add_content(
@@ -176,12 +189,15 @@ class DocxCheckerXBlock(XBlock):
 
     @XBlock.handler
     def download_assignment(self, request, suffix=''):
-        path = self._file_storage_path(os.path.splitext(self.source_docx_path)[0], self.source_docx_path)
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!", os.path.splitext(self.source_docx_path)[0])
+        path = self._file_storage_path(os.path.splitext(self.source_docx_path)[0])
+        print("!!!!!!!!!!!!", path)
         return self.download(
             path,
             'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            self.source_docx_path
+            'Исходный файл.docx'
         )
+
 
     def is_course_staff(self):
         # pylint: disable=no-member
@@ -194,11 +210,14 @@ class DocxCheckerXBlock(XBlock):
     def upload_correct_file(self, request, suffix=''):
         upload = request.params['correctFile']
         sha1 = _get_sha1(upload.file)
-        path = self._file_storage_path(sha1, upload.file.name)
+        path = self._file_storage_path(sha1)
         if not default_storage.exists(path):
             default_storage.save(path, File(upload.file))
-        self.correct_docx_path = path
-        obj = get_analyze_the_document(self.correct_docx_path)
+        self.correct_docx_path = '{filename}{ext}'.format(
+            filename=sha1, 
+            ext='.docx'
+        )
+        obj = get_analyze_the_document(path)
         return Response(json_body=obj)
 
 
@@ -206,27 +225,27 @@ class DocxCheckerXBlock(XBlock):
     def upload_source_file(self, request, suffix=''):
         upload = request.params['sourceFile']
         sha1 = _get_sha1(upload.file)
-        path = self._file_storage_path(sha1, upload.file.name)
+        path = self._file_storage_path(sha1)
         if not default_storage.exists(path):
             default_storage.save(path, File(upload.file))
         self.source_docx_path = '{filename}{ext}'.format(
-            filename=sha1, 
-            ext=os.path.splitext(upload.file.name)[1]
+            filename=sha1,
+            ext='.docx'
             )
-
+        print("LOLOLOLOL", self.source_docx_path)
         return Response(json_body=str(self.source_docx_path))
 
-    def _file_storage_path(self, sha1, filename):
+    def _file_storage_path(self, filename):
         # pylint: disable=no-member
         """
         Get file path of storage.
         """
         path = (
             '{loc.org}/{loc.course}/{loc.block_type}/{loc.block_id}'
-            '/{sha1}{ext}'.format(
+            '/{filename}{ext}'.format(
                 loc=self.location,
-                sha1=sha1,
-                ext=os.path.splitext(filename)[1]
+                filename=filename,
+                ext='.docx'
             )
         )
         return path
@@ -236,7 +255,7 @@ class DocxCheckerXBlock(XBlock):
         """
         Return a file from storage and return in a Response.
         """
-        print('!!!!!!!!!!', default_storage.url(filename))
+        # print('!!!!!!!!!!', default_storage.url(filename))
         # try:
         file_descriptor = default_storage.open(path)
         app_iter = iter(partial(file_descriptor.read, BLOCK_SIZE), '')
@@ -271,24 +290,6 @@ def _get_sha1(file_descriptor):
     file_descriptor.seek(0)
     return sha1.hexdigest()
 
-
-def student_submission_id(self, submission_id=None):
-    # pylint: disable=no-member
-    """
-    Returns dict required by the submissions app for creating and
-    retrieving submissions for a particular student.
-    """
-    if submission_id is None:
-        submission_id = self.xmodule_runtime.anonymous_student_id
-        assert submission_id != (
-            'MOCK', "Forgot to call 'personalize' in test."
-        )
-    return {
-        "student_id": submission_id,
-        "course_id": self.course_id,
-        "item_id": self.block_id,
-        "item_type": 'sga',  # ???
-    }
 def require(assertion):
     """
     Raises PermissionDenied if assertion is not true.

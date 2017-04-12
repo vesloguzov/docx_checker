@@ -2,6 +2,7 @@
 import sys
 import math
 import re
+import uuid
 
 from docx import Document
 from docx.enum.shape import WD_INLINE_SHAPE
@@ -139,7 +140,7 @@ def get_analyze_the_document(path):
                     document_header = text_element.text
         file_analyzes["document_header"] = document_header
 
-    document = Document(path)
+    document = Document("/home/edx/uploads/"+path)
     get_headers_texts(document)
     get_general_properties(document)
     get_document_margins(document)
