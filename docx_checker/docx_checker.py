@@ -7,6 +7,7 @@ import hashlib
 import logging
 import mimetypes
 import os
+import uuid
 
 from docx import Document
 
@@ -23,6 +24,7 @@ from submissions import api as submissions_api
 from submissions.models import StudentItem as SubmissionsStudent
 
 from functools import partial
+from xmodule.util.duedate import get_extended_due_date
 from webob.response import Response
 
 
@@ -41,17 +43,16 @@ BLOCK_SIZE = 8 * 1024
 
 class DocxCheckerXBlock(XBlock):
 
-    correct_docx_path = String(
+    correct_docx_uid = String(
          default='', scope=Scope.settings,
          help='Correct file from teacher',
         )
-    
-    correct_docx_object = String(
+    correct_docx_name = String(
          default='', scope=Scope.settings,
-         help='Correct file from teacher',
+         help='Name of correct file from teacher',
         )
     
-    source_docx_path = String(
+    source_docx_uid = String(
          default='', scope=Scope.settings,
          help='Unformatted file for student',
         )
@@ -61,10 +62,21 @@ class DocxCheckerXBlock(XBlock):
          help='Name of unformatted file for student',
         )
 
-    student_docx_path = String(
-         default='', scope=Scope.settings,
-         help='Correct file from student',
+    student_docx_uid = String(
+         default='', scope=Scope.user_state,
+         help='Studen file from student',
         )
+    student_docx_name = String(
+         default='', scope=Scope.user_state,
+         help='Name of student file from student',
+        )
+
+
+    correct_docx_object = String(
+         default='', scope=Scope.settings,
+         help='Correct file from teacher',
+        )
+
 
     display_name = String(
         display_name=u"Название",
@@ -96,6 +108,19 @@ class DocxCheckerXBlock(XBlock):
         default=10,
         scope=Scope.settings
     )
+    
+    attempts = Integer(
+        display_name=u"Количество использованных попыток",
+        help=u"",
+        default=0,
+        scope=Scope.user_state
+    )
+
+    points = Integer(
+        display_name=u"Текущее количество баллов студента",
+        default=None,
+        scope=Scope.user_state
+    )
 
     def resource_string(self, path):
         """Handy helper for getting resources from our kit."""
@@ -108,8 +133,19 @@ class DocxCheckerXBlock(XBlock):
             "display_name": self.display_name,
             "weight": self.weight,
             "question": self.question,
-            "max_attempts": self.max_attempts
+            "student_docx_name": self.student_docx_name,
+            "points": self.points,
+            "attempts": self.attempts,
         }
+
+        if self.max_attempts != 0:
+            context["max_attempts"] = self.max_attempts
+
+        if self.past_due():
+            context["past_due"] = True
+
+        if answer_opportunity(self):
+            context["answer_opportunity"] = True
 
         fragment = Fragment()
         fragment.add_content(
@@ -178,6 +214,26 @@ class DocxCheckerXBlock(XBlock):
              """),
         ]
 
+
+
+    @XBlock.json_handler
+    def student_submit(self, data, suffix=''):
+
+        def check_answer():
+            return 55
+
+        grade_global = check_answer()
+        self.points = grade_global
+        self.points = grade_global * self.weight / 100
+        self.points = int(round(self.points))
+        self.attempts += 1
+        self.runtime.publish(self, 'grade', {
+            'value': self.points,
+            'max_value': self.weight,
+        })
+        res = {"success_status": 'ok', "points": self.points, "weight": self.weight, "attempts": self.attempts, "max_attempts": self.max_attempts}
+        return res
+
     @XBlock.json_handler
     def studio_submit(self, data, suffix=''):
         self.display_name = data.get('display_name')
@@ -189,13 +245,20 @@ class DocxCheckerXBlock(XBlock):
 
     @XBlock.handler
     def download_assignment(self, request, suffix=''):
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!", os.path.splitext(self.source_docx_path)[0])
-        path = self._file_storage_path(os.path.splitext(self.source_docx_path)[0])
-        print("!!!!!!!!!!!!", path)
+        path = self._file_storage_path(self.source_docx_uid, self.source_docx_name)
         return self.download(
             path,
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'Исходный файл.docx'
+            mimetypes.guess_type(self.source_docx_name)[0],
+            self.source_docx_name
+        )
+
+    @XBlock.handler
+    def download_student_file(self, request, suffix=''):
+        path = self._students_storage_path(self.student_docx_uid, self.student_docx_name)
+        return self.download(
+            path,
+            mimetypes.guess_type(self.source_docx_name)[0],
+            self.student_docx_name
         )
 
 
@@ -207,16 +270,28 @@ class DocxCheckerXBlock(XBlock):
         return getattr(self.xmodule_runtime, 'user_is_staff', False)
 
     @XBlock.handler
-    def upload_correct_file(self, request, suffix=''):
-        upload = request.params['correctFile']
-        sha1 = _get_sha1(upload.file)
-        path = self._file_storage_path(sha1)
+    def student_filename(self, request, suffix=''):
+        return Response(json_body={'student_filename': self.student_docx_name})
+
+    @XBlock.handler
+    def upload_student_file(self, request, suffix=''):
+        upload = request.params['studentFile']
+        self.student_docx_name = upload.file.name
+        self.student_docx_uid = uuid.uuid4().hex
+        path = self._students_storage_path(self.student_docx_uid, self.student_docx_name)
         if not default_storage.exists(path):
             default_storage.save(path, File(upload.file))
-        self.correct_docx_path = '{filename}{ext}'.format(
-            filename=sha1, 
-            ext='.docx'
-        )
+        obj = get_analyze_the_document(path)
+        return Response(json_body=obj)
+
+    @XBlock.handler
+    def upload_correct_file(self, request, suffix=''):
+        upload = request.params['correctFile']
+        self.correct_docx_name = upload.file.name
+        self.correct_docx_uid = uuid.uuid4().hex
+        path = self._file_storage_path(self.correct_docx_uid, self.source_docx_name)
+        if not default_storage.exists(path):
+            default_storage.save(path, File(upload.file))
         obj = get_analyze_the_document(path)
         return Response(json_body=obj)
 
@@ -224,71 +299,106 @@ class DocxCheckerXBlock(XBlock):
     @XBlock.handler
     def upload_source_file(self, request, suffix=''):
         upload = request.params['sourceFile']
-        sha1 = _get_sha1(upload.file)
-        path = self._file_storage_path(sha1)
+        self.source_docx_name = upload.file.name
+        self.source_docx_uid = uuid.uuid4().hex
+        path = self._file_storage_path(self.source_docx_uid, self.source_docx_name)
         if not default_storage.exists(path):
             default_storage.save(path, File(upload.file))
-        self.source_docx_path = '{filename}{ext}'.format(
-            filename=sha1,
-            ext='.docx'
-            )
-        print("LOLOLOLOL", self.source_docx_path)
-        return Response(json_body=str(self.source_docx_path))
+        return Response(json_body=str(self.source_docx_uid))
 
-    def _file_storage_path(self, filename):
+    def _file_storage_path(self, uid, filename):
         # pylint: disable=no-member
         """
         Get file path of storage.
         """
         path = (
-            '{loc.org}/{loc.course}/{loc.block_type}/{loc.block_id}'
-            '/{filename}{ext}'.format(
+            '{loc.org}/{loc.course}/{loc.block_type}'
+            '/{uid}{ext}'.format(
                 loc=self.location,
-                filename=filename,
-                ext='.docx'
+                uid= uid,
+                ext=os.path.splitext(filename)[1]
             )
         )
         return path
 
+    def _students_storage_path(self, uid, filename):
+        # pylint: disable=no-member
+        """
+        Get file path of storage.
+        """
+        path = (
+            '{loc.org}/{loc.course}/{loc.block_type}/students'
+            '/{uid}{ext}'.format(
+                loc=self.location,
+                uid=uid,
+                ext=os.path.splitext(filename)[1]
+            )
+        )
+        return path
 
     def download(self, path, mime_type, filename, require_staff=False):
         """
         Return a file from storage and return in a Response.
         """
-        # print('!!!!!!!!!!', default_storage.url(filename))
-        # try:
-        file_descriptor = default_storage.open(path)
-        app_iter = iter(partial(file_descriptor.read, BLOCK_SIZE), '')
-        return Response(
-            app_iter=app_iter,
-            content_type=mime_type,
-            content_disposition="attachment; filename=" + filename.encode('utf-8'))
-        # except IOError:
-        #     if require_staff:
-        #         return Response(
-        #             "Sorry, assignment {} cannot be found at"
-        #             " {}. Please contact {}".format(
-        #                 filename.encode('utf-8'), path, settings.TECH_SUPPORT_EMAIL
-        #             ),
-        #             status_code=404
-        #         )
-        #     return Response(
-        #         "Sorry, the file you uploaded, {}, cannot be"
-        #         " found. Please try uploading it again or contact"
-        #         " course staff".format(filename.encode('utf-8')),
-        #         status_code=404
-        #     )
+        try:
+            file_descriptor = default_storage.open(path)
+            app_iter = iter(partial(file_descriptor.read, BLOCK_SIZE), '')
+            return Response(
+                app_iter=app_iter,
+                content_type=mime_type,
+                content_disposition="attachment; filename=" + filename.encode('utf-8'))
+        except IOError:
+            if require_staff:
+                return Response(
+                    "Sorry, assignment {} cannot be found at"
+                    " {}. Please contact {}".format(
+                        filename.encode('utf-8'), path, settings.TECH_SUPPORT_EMAIL
+                    ),
+                    status_code=404
+                )
+            return Response(
+                "Sorry, the file you uploaded, {}, cannot be"
+                " found. Please try uploading it again or contact"
+                " course staff".format(filename.encode('utf-8')),
+                status_code=404
+            )
 
+    def past_due(self):
+            """
+            Проверка, истекла ли дата для выполнения задания.
+            """
+            due = get_extended_due_date(self)
+            if due is not None:
+                if _now() > due:
+                    return False
+            return True
 
-def _get_sha1(file_descriptor):
+    def is_course_staff(self):
+        """
+        Проверка, является ли пользователь автором курса.
+        """
+        return getattr(self.xmodule_runtime, 'user_is_staff', False)
+
+    def is_instructor(self):
+        """
+        Проверка, является ли пользователь инструктором.
+        """
+        return self.xmodule_runtime.get_user_role() == 'instructor'
+
+def _now():
     """
-    Get file hex digest (fingerprint).
+    Получение текущих даты и времени.
     """
-    sha1 = hashlib.sha1()
-    for block in iter(partial(file_descriptor.read, BLOCK_SIZE), ''):
-        sha1.update(block)
-    file_descriptor.seek(0)
-    return sha1.hexdigest()
+    return datetime.datetime.utcnow().replace(tzinfo=pytz.utc)
+
+def answer_opportunity(self):
+    """
+    Возможность ответа (если количество сделанных попыток меньше заданного).
+    """
+    if self.max_attempts <= self.attempts and self.max_attempts != 0:
+        return False
+    else:
+        return True
 
 def require(assertion):
     """

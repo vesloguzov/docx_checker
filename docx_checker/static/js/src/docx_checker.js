@@ -1,19 +1,31 @@
 /* Javascript for DocxCheckerXBlock. */
 function DocxCheckerXBlock(runtime, element) {
    var downloadUrl = runtime.handlerUrl(element, 'download_assignment');
-   console.log()
-   var studentFileUrl = runtime.handlerUrl(element, 'upload_student_file');
+   $('#download-file', element).attr('href', downloadUrl);
 
-   $('#download-file', element).attr('href',downloadUrl);
+   var upload_student_file = runtime.handlerUrl(element, 'upload_student_file');
 
+   var download_student_file = runtime.handlerUrl(element, 'download_student_file');
+   $('.download_student_file', element).attr('href', download_student_file);
    
+   var student_filename = runtime.handlerUrl(element, 'student_filename');
+
+   var student_submit = runtime.handlerUrl(element,'student_submit');
+
     function successLoadStudentFile(result) {
-        alert('Файл успешно загружен');
+        $.ajax({
+            url: student_filename,
+            type: 'GET',
+            success: function(result){
+                $('.download_student_file', element).html(result["student_filename"]);
+            }
+
+        });
     }
 
     $(':button.upload-student-file').on('click', function() {
         $.ajax({
-            url: studentFileUrl,
+            url: upload_student_file,
             type: 'POST',
             data: new FormData($('form.student')[0]),
             cache: false,
@@ -33,6 +45,19 @@ function DocxCheckerXBlock(runtime, element) {
             success: successLoadStudentFile
 
         });
+    });
+
+
+    $(element).find('.Check').bind('click', function() {
+        $.ajax({
+            type: "POST",
+            url: student_submit,
+            data: JSON.stringify({"picture": "resultImage" }),
+            success: function(result){
+                console.log(result)
+            }
+        });
+
     });
 
     $(function ($) {
