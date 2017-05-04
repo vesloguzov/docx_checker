@@ -1,7 +1,7 @@
 /* Javascript for DocxCheckerXBlock. */
 function DocxCheckerXBlock(runtime, element, data) {
 
-   var docx_lab_scenario = data["lab_scenario"];
+   var lab_scenario = data["lab_scenario"];
    var student_docx_name = data["student_docx_name"];
 
 
