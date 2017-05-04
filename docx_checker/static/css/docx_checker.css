@@ -1,13 +1,72 @@
-/* CSS for DocxCheckerXBlock */
+/* CSS for XlsxCheckerXBlock */
 
-.docx_checker_block .count {
+.xlsx_checker_block .count {
     font-weight: bold;
 }
 
-.docx_checker_block p {
+.xlsx_checker_block p {
     cursor: pointer;
 }
 
-.upload-block{
-	padding-top: 28px;
+#tabs{
+	padding: 12px;
+}
+
+[class*="view-"] .modal-window .editor-with-buttons.wrapper-comp-settings .list-input.settings-list {
+    height: inherit;
+}
+[class*="view-"] .modal-lg.modal-editor .modal-content{
+    height: 750px;
+}
+
+.action-tabs{
+    margin-left: 10px;
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-weight: 400;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.action-tabs:hover{
+    background: #d6d6d6 none repeat scroll 0% 0%;
+    color: #4C4C4C;
+}
+
+.is-active-tabs{
+    background: #888 none repeat scroll 0% 0%;
+    color: white;
+
+}
+
+.wrapper-comp-settings .list-input.settings-list .docx-analyse .field.comp-setting-entry {
+	padding: 0px !important;
+}
+
+[class*="view-"] .modal-window .editor-with-buttons.wrapper-comp-settings .list-input.settings-list {
+     height: auto !important;
+}
+
+
+.buttons {
+    width: 100% !important;
+    position: relative !important;
+    border-radius: 0px !important;
+}
+
+.docx_checker_studio h2{
+	text-align: center;
+    font-size: 16pt;
+    padding-bottom: 10px;
+        padding-top: 10px;
+}
+
+.docx_checker_studio form{
+	margin: 15px !important;
+}
+
+.main-settings-content{
+    padding: 20px;
 }

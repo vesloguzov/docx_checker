@@ -5,76 +5,32 @@
     <ul class="list-input settings-list">
 
   <div id="main-settings">
-		<div class="docx_checker_block_correct">
 
-		<form enctype="multipart/form-data" class="correct">
-			<h2>Загрузка корректного файла</h2>
-			<input type="file" class="correct-file" name="correctFile" accept=".docx"/>
-			<input type="button" value="Загрузить"  class="upload-correct-file"/>
-		</form>
-		<div id="file-analyse-result">
-		</div>
-		<div class="docx-analyse">
+  <h2>В данный момент доступна одна лабораторная работа Microsoft Office Word</h2>
+  
+ <div class="main-settings-content">
+    <select class="select-lab" name="lab_scenario" selected="{{lab_scenario}}">
+        <option {% if lab_scenario == 1 %} selected="selected" {% endif %} value="1">Стилевое форматирование</option>
+       </select>
 
-		<!--
-			<li class="field comp-setting-entry is-set">
-		        <div class="wrapper-comp-setting">
-		        <label class="label docx-setting-label" for="sequence">Проверять нижний колонтитул:</label>
-		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
-		      	</div>
-	    	</li>
-		-->
-		
-<!-- 			<li class="field comp-setting-entry is-set">
-		        <div class="wrapper-comp-setting">
-		        <label class="label docx-setting-label" for="sequence">Проверять оглавление:</label>
-		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
-		      	</div>
-	    	</li>
+     <div id="1" class="group" >
+       <p>Описание лабораторной работы по стилевому форматированию ...</p>
+    </div>
 
-			<li class="field comp-setting-entry is-set">
-		        <div class="wrapper-comp-setting">
-		        <label class="label docx-setting-label" for="sequence">Проверять разрывы страниц</label>
-		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
-		      	</div>
-	    	</li>
+</div>
 
-			<li class="field comp-setting-entry is-set">
-		        <div class="wrapper-comp-setting">
-		        <label class="label docx-setting-label" for="sequence">Проверять сноски</label>
-		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
-		      	</div>
-	    	</li>
-
-	   		<li class="field comp-setting-entry is-set">
-		        <div class="wrapper-comp-setting">
-		        <label class="label docx-setting-label" for="sequence">Проверять поля</label>
-		        <input class="input setting-input" style="height:20px" name="sequence" id="sequence" checked="checked" type="checkbox" />
-		      	</div>
-	    	</li> -->
-
-		</div>
-		</div>
-
-		<div class="docx_checker_block_source">
-			<form enctype="multipart/form-data" class="source">
-				<h2>Загрузка исходного файла для студента:</h2>
-				<input type="file" class="source-file" name="sourceFile" accept=".docx"/>
-				<input type="button" value="Загрузить"  class="upload-source-file"/>
-			</form>
-
-		</div>
   </div>
 
   <div id="scenario-settings" hidden="true">
 
+  <!--
       <li class="field comp-setting-entry is-set">
         <div class="wrapper-comp-setting">
           <label class="label setting-label" for="display_name">Название:</label>
           <input class="input setting-input" name="display_name" id="display_name" value="{{display_name}}" type="text" />
         </div>
       </li>
-
+  -->
           <li class="field comp-setting-entry is-set">
         <div class="wrapper-comp-setting">
           <label class="label setting-label" for="question-area">Вопрос:</label>
@@ -100,11 +56,11 @@
 
   <div id="advanced-settings" hidden="true">
       
-	<li class="field comp-setting-entry is-set">
+  <li class="field comp-setting-entry is-set">
         <div class="wrapper-comp-setting">
         <label class="label setting-label" for="sequence">Здесь могут быть расширенные настройки</label>
-      	</div>
-	</li>
+        </div>
+  </li>
 
 
 

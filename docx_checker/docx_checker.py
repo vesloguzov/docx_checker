@@ -43,13 +43,41 @@ BLOCK_SIZE = 8 * 1024
 
 class DocxCheckerXBlock(XBlock):
 
-    correct_docx_uid = String(
+    lab_scenario = Integer(
+        display_name=u"Номер сценария",
+        help=(u"Номер сценария",
+              u"Номер сценария"),
+        default=9999,
+        scope=Scope.settings
+    )
+
+    scenarios_settings = JSONField(
+        display_name=u"Настройки сценария",
+        help=u"Настройки сценария",
+        default={
+            "1": {
+                  "instruction_name": "Лабораторная 1. Указания к работе.docx", 
+                  "template_name": "lab1_template.docx",
+                  "correct_name": "lab1_correct.docx",
+                  "title": "Стилевое форматирование процессоре Microsoft Office Word"
+                 },
+        },
+        scope=Scope.settings
+    )
+
+    instruction_link = String(
          default='', scope=Scope.settings,
-         help='Correct file from teacher',
+         help='Link for instruction download',
         )
-    correct_docx_name = String(
+    
+    template_link = String(
          default='', scope=Scope.settings,
-         help='Name of correct file from teacher',
+         help='Link for template download',
+        )
+
+    correct_link = String(
+         default='', scope=Scope.settings,
+         help='Link for correct file',
         )
     
     source_docx_uid = String(
@@ -70,13 +98,6 @@ class DocxCheckerXBlock(XBlock):
          default='', scope=Scope.user_state,
          help='Name of student file from student',
         )
-
-
-    correct_docx_object = String(
-         default='', scope=Scope.settings,
-         help='Correct file from teacher',
-        )
-
 
     display_name = String(
         display_name=u"Название",
@@ -136,6 +157,11 @@ class DocxCheckerXBlock(XBlock):
             "student_docx_name": self.student_docx_name,
             "points": self.points,
             "attempts": self.attempts,
+            "instruction_link": self.runtime.local_resource_url(self, 'public/instructions/' + self.instruction_link),
+            "template_link": self.runtime.local_resource_url(self, 'public/templates/' + self.template_link),
+            "lab_scenario": self.lab_scenario,
+            "download_template_icon": self.runtime.local_resource_url(self, 'public/images/download_template_icon.png'),
+            "download_instruction_icon": self.runtime.local_resource_url(self, 'public/images/download_instruction_icon.png'),
         }
 
         if self.max_attempts != 0:
@@ -240,25 +266,40 @@ class DocxCheckerXBlock(XBlock):
         self.question = data.get('question')
         self.weight = data.get('weight')
         self.max_attempts = data.get('max_attempts')
+        self.lab_scenario = data.get('lab_scenario')
+
+        self.instruction_link = self.scenarios_settings[str(self.lab_scenario)]["instruction_name"]
+        self.template_link = self.scenarios_settings[str(self.lab_scenario)]["template_name"]
+        self.correct_link = self.runtime.local_resource_url(self, 'corrects/' + self.scenarios_settings[str(self.lab_scenario)]["correct_name"])
+
+        self.display_name = 'Проверка MS Word. ' + self.scenarios_settings[str(self.lab_scenario)]["title"]
+
+        if str(self.lab_scenario) == "1":
+            pass
 
         return {'result': 'success'}
 
     @XBlock.handler
-    def download_assignment(self, request, suffix=''):
-        path = self._file_storage_path(self.source_docx_uid, self.source_docx_name)
-        return self.download(
-            path,
-            mimetypes.guess_type(self.source_docx_name)[0],
-            self.source_docx_name
-        )
+    def student_filename(self, request, suffix=''):
+        return Response(json_body={'student_filename': self.student_docx_name})
 
     @XBlock.handler
     def download_student_file(self, request, suffix=''):
         path = self._students_storage_path(self.student_docx_uid, self.student_docx_name)
         return self.download(
             path,
-            mimetypes.guess_type(self.source_docx_name)[0],
-            self.student_docx_name
+            mimetypes.guess_type(self.student_xlsx_name)[0],
+            self.student_xlsx_name
+        )
+
+
+    @XBlock.handler
+    def download_instruction(self, request, suffix=''):
+        path = self.runtime.local_resource_url(self, 'public/instructions/' + self.instruction_link)
+        return self.download(
+            path,
+            'docx',
+            self.instruction_link
         )
 
 
@@ -270,10 +311,6 @@ class DocxCheckerXBlock(XBlock):
         return getattr(self.xmodule_runtime, 'user_is_staff', False)
 
     @XBlock.handler
-    def student_filename(self, request, suffix=''):
-        return Response(json_body={'student_filename': self.student_docx_name})
-
-    @XBlock.handler
     def upload_student_file(self, request, suffix=''):
         upload = request.params['studentFile']
         self.student_docx_name = upload.file.name
@@ -283,28 +320,6 @@ class DocxCheckerXBlock(XBlock):
             default_storage.save(path, File(upload.file))
         obj = get_analyze_the_document(path)
         return Response(json_body=obj)
-
-    @XBlock.handler
-    def upload_correct_file(self, request, suffix=''):
-        upload = request.params['correctFile']
-        self.correct_docx_name = upload.file.name
-        self.correct_docx_uid = uuid.uuid4().hex
-        path = self._file_storage_path(self.correct_docx_uid, self.correct_docx_name)
-        if not default_storage.exists(path):
-            default_storage.save(path, File(upload.file))
-        obj = get_analyze_the_document(path)
-        return Response(json_body=obj)
-
-
-    @XBlock.handler
-    def upload_source_file(self, request, suffix=''):
-        upload = request.params['sourceFile']
-        self.source_docx_name = upload.file.name
-        self.source_docx_uid = uuid.uuid4().hex
-        path = self._file_storage_path(self.source_docx_uid, self.source_docx_name)
-        if not default_storage.exists(path):
-            default_storage.save(path, File(upload.file))
-        return Response(json_body=str(self.source_docx_uid))
 
     def _file_storage_path(self, uid, filename):
         # pylint: disable=no-member
