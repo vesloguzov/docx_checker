@@ -289,7 +289,7 @@ class DocxCheckerXBlock(XBlock):
         upload = request.params['correctFile']
         self.correct_docx_name = upload.file.name
         self.correct_docx_uid = uuid.uuid4().hex
-        path = self._file_storage_path(self.correct_docx_uid, self.source_docx_name)
+        path = self._file_storage_path(self.correct_docx_uid, self.correct_docx_name)
         if not default_storage.exists(path):
             default_storage.save(path, File(upload.file))
         obj = get_analyze_the_document(path)
