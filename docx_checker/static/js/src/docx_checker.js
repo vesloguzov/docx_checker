@@ -23,7 +23,7 @@ function DocxCheckerXBlock(runtime, element) {
         });
     }
 
-    $(':button.upload-student-file').on('click', function() {
+    $(':button.upload-student-file', element).on('click', function() {
         $.ajax({
             url: docx_upload_student_file,
             type: 'POST',
