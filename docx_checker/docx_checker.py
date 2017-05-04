@@ -12,7 +12,7 @@ import uuid
 from docx import Document
 
 from xblock.core import XBlock
-from xblock.fields import Scope, Integer, String
+from xblock.fields import Scope, Integer, String, JSONField
 from xblock.fragment import Fragment
 from django.core.files import File
 from django.core.files.storage import default_storage
@@ -191,7 +191,7 @@ class DocxCheckerXBlock(XBlock):
 
         load_resources(js_urls, css_urls, fragment)
 
-        fragment.initialize_js('DocxCheckerXBlock')
+        fragment.initialize_js('DocxCheckerXBlock', {'lab_scenario': self.lab_scenario, 'student_docx_name': self.student_docx_name})
         return fragment
 
     def studio_view(self, context=None):
@@ -288,8 +288,8 @@ class DocxCheckerXBlock(XBlock):
         path = self._students_storage_path(self.student_docx_uid, self.student_docx_name)
         return self.download(
             path,
-            mimetypes.guess_type(self.student_xlsx_name)[0],
-            self.student_xlsx_name
+            mimetypes.guess_type(self.student_docx_name)[0],
+            self.student_docx_name
         )
 
 

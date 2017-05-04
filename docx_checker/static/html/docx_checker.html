@@ -1,53 +1,80 @@
+{% load static %}
 <div class="problem">
-
-<div class="problem-progress">
+    <div class="problem-progress">
         {% if points == 0 or points %}
             <me-span class="weight"> Набрано баллов: <me-span class="points">{{points}} из {{weight}}</me-span></me-span>
         {% else %}
             <me-span class="weight">(Максимальное кoличество баллов: {{weight}})</me-span>
         {% endif %}
     </div>   
+    <h2 class="problem-header">{{display_name}}</h2>
 
+    {% if lab_scenario != 9999 %}
 
-        <h2 class="problem-header">{{display_name}}</h2>
         {% if question != '' and question != "None" %}
             <div id="question">{{question|safe}}</div>
         {% endif %}
-        <img style="width: 40px !important;" src="http://icons.iconarchive.com/icons/carlosjj/microsoft-office-2013/256/Word-icon.png"/>
-		<a id="download-file">Скачать исходный файл</a></p>
 
-    {% if student_docx_name != '' %}
-        <p>Загруженный файл</p>
-        <a class="docx_download_student_file">{{student_docx_name}}<a/>
+        <div style="padding: 10px;">
+            <div class="download_block">
+                <a class="download_instruction" href="{{instruction_link}}"><img src={{download_instruction_icon}} />Скачать инструкцию</a><br />
+            </div>
+            
+            <div class="download_block">
+                <a class="template_link" href="{{template_link}}"><img src={{download_template_icon}} />Скачать шаблон для задания</a>
+            </div>
+        </div>
+
+        <div class="file-upload-block">
+            
+            <div class="current-student-file">
+                <p>Ваш загруженный документ: <a class="download_student_file">{{student_docx_name}}<a/></p>
+            </div>
+
+            <div class="upload-block">
+
+                    <form enctype="multipart/form-data" class="student">
+                    <p>Загрузка файла</p>
+                        <input type="file" class="student-file" name="studentFile" accept=".docx"/>
+                        <input type="button" value="Загрузить документ для проверки"  class="upload-student-file"/>
+                    </form>
+            </div>
+        </div>
+
+        <div class="block-analyze">
+            <!--
+            <div class="main-block-analyze errors-analyze">
+                <h3>Ошибки:</h3>
+                <div class="analyze-errors"></div>
+            </div>
+            <div class="main-block-analyze full-analyze">
+                <h3>Полный анализ документа анализ документа:</h3>
+                <div class="analyze-all"></div>
+            </div>
+            -->
+        </div>
+
+        <div class="action">
+                {% if past_due and answer_opportunity %}
+                    <button class="check Check" data-checking="Проверка..." data-value="Проверить/последняя попытка"><span class="check-label">Проверить</span><span class="sr"> ваш ответ</span></button>
+                    <div class="submission_feedback" aria-live="polite">
+                    {% if max_attempts %}
+                        Использовано попыток: <me-span class="attempts">{{attempts}}</me-span> из {{max_attempts}} 
+                    {% endif %}
+                    </div>
+                {% elif past_due %}
+                    <div class="submission_feedback" aria-live="polite">
+                        Использовано попыток: <me-span class="attempts">{{attempts}}</me-span> из {{max_attempts}} 
+                    </div>
+                {% elif answer_opportunity %}
+                    <div class="submission_feedback" aria-live="polite">
+                        Использовано попыток: <me-span class="attempts">{{attempts}}</me-span> из {{max_attempts}} <br />Время для ответа истекло
+                    </div>
+                {% endif %}
+        </div>
+
+    {% else %}
+        <p>Задание еще не настроено!</p>
     {% endif %}
 
-    <div class="upload-block">
-    		<form enctype="multipart/form-data" class="student">
-    			<h2>Загрузить отредактированный файл</h2>
-    			<input type="file" class="student-file" name="studentFile" accept=".docx"/>
-    			<input type="button" value="Загрузить"  class="upload-student-file"/>
-    		</form>
-    </div>
-
-    <div class="action">
-            {% if past_due and answer_opportunity %}
-                <button class="check Check" data-checking="Проверка..." data-value="Проверить/последняя попытка"><span class="check-label">Проверить</span><span class="sr"> ваш ответ</span></button>
-                <div class="submission_feedback" aria-live="polite">
-                {% if max_attempts %}
-                    Использовано попыток: <me-span class="attempts">{{attempts}}</me-span> из {{max_attempts}} 
-                {% endif %}
-                </div>
-            {% elif past_due %}
-                <div class="submission_feedback" aria-live="polite">
-                    Использовано попыток: <me-span class="attempts">{{attempts}}</me-span> из {{max_attempts}} 
-                </div>
-            {% elif answer_opportunity %}
-                <div class="submission_feedback" aria-live="polite">
-                    Использовано попыток: <me-span class="attempts">{{attempts}}</me-span> из {{max_attempts}} <br />Время для ответа истекло
-                </div>
-            {% endif %}
-
-    </div>
-
 </div> 
-

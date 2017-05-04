@@ -1,61 +1,71 @@
 /* Javascript for DocxCheckerXBlock. */
-function DocxCheckerXBlock(runtime, element) {
-   var docx_downloadUrl = runtime.handlerUrl(element, 'download_assignment');
-   $('#download-file', element).attr('href', docx_downloadUrl);
+function DocxCheckerXBlock(runtime, element, data) {
 
-   var docx_upload_student_file = runtime.handlerUrl(element, 'upload_student_file');
+   var docx_lab_scenario = data["lab_scenario"];
+   var student_docx_name = data["student_docx_name"];
 
-   var docx_download_student_file = runtime.handlerUrl(element, 'download_student_file');
-   $('.docx_download_student_file', element).attr('href', docx_download_student_file);
-   
-   var docx_student_filename = runtime.handlerUrl(element, 'student_filename');
 
-   var docx_student_submit = runtime.handlerUrl(element,'student_submit');
+   var upload_student_file = runtime.handlerUrl(element, 'upload_student_file');
+
+   var download_student_file = runtime.handlerUrl(element, 'download_student_file');
+   $('.download_student_file', element).attr('href', download_student_file);
+   var student_filename = runtime.handlerUrl(element, 'student_filename');
+   var student_submit = runtime.handlerUrl(element,'student_submit');
+
 
     function successLoadStudentFile(result) {
         $.ajax({
-            url: docx_student_filename,
+            url: student_filename,
             type: 'GET',
             success: function(result){
-                $('.docx_download_student_file', element).html(result["student_filename"]);
+                $('.download_student_file', element).html(result["student_filename"]);
+                $('.current-student-file', element).show();
+                $('input[name="studentFile"]', element).val("");
             }
 
         });
     }
 
     $(':button.upload-student-file', element).on('click', function() {
-        $.ajax({
-            url: docx_upload_student_file,
-            type: 'POST',
-            data: new FormData($('form.student', element)[0]),
-            cache: false,
-            contentType: false,
-            processData: false,
-            xhr: function() {
-                var myXhr = $.ajaxSettings.xhr();
-                if (myXhr.upload) {
-                    myXhr.upload.addEventListener('progress', function(evt) {
-                        if (evt.lengthComputable) {
-                            //Сделать лоадер
-                        }
-                    } , false);
-                }
-                return myXhr;
-            },
-            success: successLoadStudentFile
+        var file = $('input[name="studentFile"]', element).val().trim();
+        if(file){
+            $.ajax({
+                url: upload_student_file,
+                type: 'POST',
+                data: new FormData($('form.student', element)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                xhr: function() {
+                    var myXhr = $.ajaxSettings.xhr();
+                    if (myXhr.upload) {
+                        myXhr.upload.addEventListener('progress', function(evt) {
+                            if (evt.lengthComputable) {
+                                //Сделать лоадер
+                            }
+                        } , false);
+                    }
+                    return myXhr;
+                },
+                success: successLoadStudentFile
 
-        });
+            });
+        }
+        else{
+            alert("Необходимо  выбрать документ!");
+        }
     });
 
+    function successCheck(result) {
+        console.log(result);
+    }
 
     $(element).find('.Check').bind('click', function() {
         $.ajax({
             type: "POST",
-            url: docx_student_submit,
+            url: student_submit,
             data: JSON.stringify({"picture": "resultImage" }),
-            success: function(result){
-                console.log(result)
-            }
+            success: successCheck
         });
 
     });

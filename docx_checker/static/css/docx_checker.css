@@ -1,72 +1,83 @@
-/* CSS for XlsxCheckerXBlock */
-
-.xlsx_checker_block .count {
-    font-weight: bold;
+.file-upload-block{
+	background: #ececec !important;
+    margin: 30px 0px;
+    padding: 10px;
 }
 
-.xlsx_checker_block p {
-    cursor: pointer;
+.file-upload-block input[type="button"]{
+    font-weight: 400 !important;
+    padding: 0px 6px !important;
+    margin: 10px;
 }
 
-#tabs{
-	padding: 12px;
+.file-upload-block form{
+	padding: 10px !important;
+    display: inline-grid !important;
 }
-
-[class*="view-"] .modal-window .editor-with-buttons.wrapper-comp-settings .list-input.settings-list {
-    height: inherit;
-}
-[class*="view-"] .modal-lg.modal-editor .modal-content{
-    height: 750px;
-}
-
-.action-tabs{
-    margin-left: 10px;
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 4px;
-    text-transform: uppercase;
-    font-weight: 400;
-    font-size: 14px;
-    cursor: pointer;
-}
-
-.action-tabs:hover{
-    background: #d6d6d6 none repeat scroll 0% 0%;
-    color: #4C4C4C;
-}
-
-.is-active-tabs{
-    background: #888 none repeat scroll 0% 0%;
-    color: white;
-
-}
-
-.wrapper-comp-settings .list-input.settings-list .docx-analyse .field.comp-setting-entry {
-	padding: 0px !important;
-}
-
-[class*="view-"] .modal-window .editor-with-buttons.wrapper-comp-settings .list-input.settings-list {
-     height: auto !important;
-}
-
-
-.buttons {
-    width: 100% !important;
-    position: relative !important;
-    border-radius: 0px !important;
-}
-
-.docx_checker_studio h2{
+.upload-block{
 	text-align: center;
-    font-size: 16pt;
-    padding-bottom: 10px;
-        padding-top: 10px;
 }
 
-.docx_checker_studio form{
-	margin: 15px !important;
+.file-upload-block form p{
+   text-align: center !important;
+    margin-bottom: 0.4em !important;
 }
 
-.main-settings-content{
-    padding: 20px;
+.current-student-file p{
+	font-size: 1.2em !important;
+    font-weight: normal !important;
+    margin-bottom: 0.4em !important;
+}
+
+.block-analyze{
+	padding: 10px;
+    /*background: #ececec;*/
+    margin: 30px 0px;
+}
+
+.block-analyze .criterion-complete-false{
+	background: rgba(255, 138, 138, 0.27);
+}
+
+.block-analyze .criterion-complete-true{
+	background: rgba(125, 204, 125, 0.19);
+}
+
+.one-criterion {
+    margin: 0px 30px !important;
+    padding: 2px;
+}
+
+.criterion-block {
+    padding: 0px 0px 10px 0px;
+}
+
+.criterion-block div{
+	font-size: 1.1em;
+    padding: 6px 0px;
+}
+
+.main-block-analyze{
+	border: 2px solid #c1c1c1;
+    padding: 8px 18px;
+    margin: 10px 0px;
+}
+
+.main-block-analyze h3{
+    text-align: center;
+    padding: 10px 0px;
+}
+
+.download_instruction img{
+    width: 54px;
+    padding-right: 10px;
+}
+
+.template_link img{
+    width: 50px;
+    padding-right: 10px;
+}
+
+.download_block{
+    padding: 6px 12px;
 }
