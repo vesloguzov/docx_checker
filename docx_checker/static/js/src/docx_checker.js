@@ -1,23 +1,23 @@
 /* Javascript for DocxCheckerXBlock. */
 function DocxCheckerXBlock(runtime, element) {
-   var downloadUrl = runtime.handlerUrl(element, 'download_assignment');
-   $('#download-file', element).attr('href', downloadUrl);
+   var docx_downloadUrl = runtime.handlerUrl(element, 'download_assignment');
+   $('#download-file', element).attr('href', docx_downloadUrl);
 
-   var upload_student_file = runtime.handlerUrl(element, 'upload_student_file');
+   var docx_upload_student_file = runtime.handlerUrl(element, 'upload_student_file');
 
-   var download_student_file = runtime.handlerUrl(element, 'download_student_file');
-   $('.download_student_file', element).attr('href', download_student_file);
+   var docx_download_student_file = runtime.handlerUrl(element, 'download_student_file');
+   $('.docx_download_student_file', element).attr('href', docx_download_student_file);
    
-   var student_filename = runtime.handlerUrl(element, 'student_filename');
+   var docx_student_filename = runtime.handlerUrl(element, 'student_filename');
 
-   var student_submit = runtime.handlerUrl(element,'student_submit');
+   var docx_student_submit = runtime.handlerUrl(element,'student_submit');
 
     function successLoadStudentFile(result) {
         $.ajax({
-            url: student_filename,
+            url: docx_student_filename,
             type: 'GET',
             success: function(result){
-                $('.download_student_file', element).html(result["student_filename"]);
+                $('.docx_download_student_file', element).html(result["student_filename"]);
             }
 
         });
@@ -25,7 +25,7 @@ function DocxCheckerXBlock(runtime, element) {
 
     $(':button.upload-student-file').on('click', function() {
         $.ajax({
-            url: upload_student_file,
+            url: docx_upload_student_file,
             type: 'POST',
             data: new FormData($('form.student')[0]),
             cache: false,
@@ -51,7 +51,7 @@ function DocxCheckerXBlock(runtime, element) {
     $(element).find('.Check').bind('click', function() {
         $.ajax({
             type: "POST",
-            url: student_submit,
+            url: docx_student_submit,
             data: JSON.stringify({"picture": "resultImage" }),
             success: function(result){
                 console.log(result)
