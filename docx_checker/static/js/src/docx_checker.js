@@ -27,7 +27,7 @@ function DocxCheckerXBlock(runtime, element) {
         $.ajax({
             url: docx_upload_student_file,
             type: 'POST',
-            data: new FormData($('form.student')[0]),
+            data: new FormData($('form.student', element)[0]),
             cache: false,
             contentType: false,
             processData: false,
