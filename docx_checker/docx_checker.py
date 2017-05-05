@@ -27,6 +27,7 @@ from functools import partial
 from xmodule.util.duedate import get_extended_due_date
 from webob.response import Response
 
+from lab_1_check_answer import lab_1_check_answer
 
 from .utils import (
     load_resource,
@@ -97,6 +98,12 @@ class DocxCheckerXBlock(XBlock):
     student_docx_name = String(
          default='', scope=Scope.user_state,
          help='Name of student file from student',
+        )
+
+    docx_analyze = JSONField(
+         default={}, 
+         scope=Scope.user_state,
+         help='Analyze document',
         )
 
     display_name = String(
@@ -191,7 +198,7 @@ class DocxCheckerXBlock(XBlock):
 
         load_resources(js_urls, css_urls, fragment)
 
-        fragment.initialize_js('DocxCheckerXBlock', {'lab_scenario': self.lab_scenario, 'student_docx_name': self.student_docx_name})
+        fragment.initialize_js('DocxCheckerXBlock', {'lab_scenario': self.lab_scenario, 'student_docx_name': self.student_docx_name, 'docx_analyze': self.docx_analyze})
         return fragment
 
     def studio_view(self, context=None):
@@ -247,6 +254,15 @@ class DocxCheckerXBlock(XBlock):
 
         def check_answer():
             return 55
+        student_path = self._students_storage_path(self.student_docx_uid, self.student_docx_name)
+        self.docx_analyze["errors"] = []
+        
+        if str(self.lab_scenario) == "1":
+            # try:
+            result = lab_1_check_answer(default_storage.open(student_path), '/home/edx/edxwork/docx_checker/docx_checker/corrects/lab1_correct.docx')
+            self.docx_analyze = result
+            # except:
+            #     self.docx_analyze["errors"].append("Ошибка открытия файла")
 
         grade_global = check_answer()
         self.points = grade_global
@@ -257,7 +273,7 @@ class DocxCheckerXBlock(XBlock):
             'value': self.points,
             'max_value': self.weight,
         })
-        res = {"success_status": 'ok', "points": self.points, "weight": self.weight, "attempts": self.attempts, "max_attempts": self.max_attempts}
+        res = {"success_status": 'ok', "points": self.points, "weight": self.weight, "attempts": self.attempts, "max_attempts": self.max_attempts, "docx_analyze": self.docx_analyze }
         return res
 
     @XBlock.json_handler
