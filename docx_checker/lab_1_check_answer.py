@@ -115,7 +115,6 @@ def is_document_numbering(document):
         header_xml = header_part._blob
         namespace = dict(w="http://schemas.openxmlformats.org/wordprocessingml/2006/main")
         root = ET.fromstring(header_xml)
-        # print header_xml
         try:
             text_element = root.find(".//w:docPartGallery", namespace)
             if "Page Numbers" in ET.tostring(text_element):

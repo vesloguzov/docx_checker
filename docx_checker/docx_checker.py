@@ -41,7 +41,9 @@ from .utils import (
 
 
 log = logging.getLogger(__name__)
+
 BLOCK_SIZE = 8 * 1024
+STUDENT_FILE_MAX_SIZE = 10485760
 
 class DocxCheckerXBlock(XBlock):
 
@@ -349,14 +351,17 @@ class DocxCheckerXBlock(XBlock):
     @XBlock.handler
     def upload_student_file(self, request, suffix=''):
         upload = request.params['studentFile']
-        self.student_docx_name = upload.file.name
-        self.student_docx_uid = uuid.uuid4().hex
-        path = self._students_storage_path(self.student_docx_uid, self.student_docx_name)
-        print '!!!!!!!!!!!!!!!!!!!!!!!!!', path
-        if not default_storage.exists(path):
-            default_storage.save(path, File(upload.file))
-        obj = path
-        return Response(json_body=obj)
+        if upload.file.size < STUDENT_FILE_MAX_SIZE:
+            self.student_docx_name = upload.file.name
+            self.student_docx_uid = uuid.uuid4().hex
+            print "!!!!!!!!!!!!!!!!!!!!!!SIZE: ", os.path.splitext(upload.file.name)
+            path = self._students_storage_path(self.student_docx_uid, self.student_docx_name)
+            if not default_storage.exists(path):
+                default_storage.save(path, File(upload.file))
+            # obj = path
+            return Response(json_body={"status": True, "path": path, "student_filename": self.student_docx_name})
+        else:
+            return Response(json_body={"status": False, "max_size_limit": STUDENT_FILE_MAX_SIZE, "path": path, "student_filename": self.student_docx_name})
 
     def _file_storage_path(self, uid, filename):
         # pylint: disable=no-member

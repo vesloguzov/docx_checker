@@ -59,8 +59,7 @@ def string_arrays_is_equal(arr1, arr2):
         return False
 
 def lab_2_check_answer(student_path, correct_path):
-    print '!!!!!!!!!!!!!!!!!!!!!!!!!!!!', student_path
-    print '!!!!!!!!!!!!!!!!!!!!!!!!!!!!', correct_path
+
     response_message = {}
     response_message["errors"] = []
     response_message["table_format"] = {}
@@ -77,7 +76,6 @@ def lab_2_check_answer(student_path, correct_path):
     if len(document_student.tables) == 1:
         table_student = document_student.tables[0]
         table_correct = document_correct.tables[0]
-        # print table_student
 
         if string_arrays_is_equal(get_cells(table_student), get_cells(table_correct)):
             response_message["table_format"]["status"] = True
