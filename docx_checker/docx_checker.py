@@ -28,6 +28,7 @@ from xmodule.util.duedate import get_extended_due_date
 from webob.response import Response
 
 from lab_1_check_answer import lab_1_check_answer
+from lab_2_check_answer import lab_2_check_answer
 
 from .utils import (
     load_resource,
@@ -36,7 +37,7 @@ from .utils import (
     )
 
 
-from analyze import *
+# from analyze import *
 
 
 log = logging.getLogger(__name__)
@@ -62,6 +63,12 @@ class DocxCheckerXBlock(XBlock):
                   "correct_name": "lab1_correct.docx",
                   "title": "Стилевое форматирование процессоре Microsoft Office Word"
                  },
+            "2": {
+                  "instruction_name": "Лабораторная 2. Указания к работе.docx", 
+                  "template_name": "lab2_template.docx",
+                  "correct_name": "lab2_correct.docx",
+                  "title": "Создание и форматирование таблиц Microsoft Office Word"
+             },
         },
         scope=Scope.settings
     )
@@ -117,7 +124,7 @@ class DocxCheckerXBlock(XBlock):
         # TODO: list
         display_name=u"Вопрос",
         help=u"Текст задания.",
-        default=u"<h3>Лабораторная работа включает в себя следующие элементы:</h3><ol><li>Работа со стилями. Создание стиля для основного текста и для заголовков.</li><li>Оформление документа (установка полей, нумерации страниц, разрывов страниц, заполнение верхнего колонтитула).</li><li>Создание сноски.</li><li>Создание предметного указателя.</li><li>Создание оглавления.</li><li>Оформление титульного листа.</li>",
+        default=u"Текст вопроса",
         scope=Scope.settings
     )
 
@@ -202,11 +209,21 @@ class DocxCheckerXBlock(XBlock):
         return fragment
 
     def studio_view(self, context=None):
+
+        scenarios = []
+        for index,key in enumerate(self.scenarios_settings.keys()):
+            element = {}
+            element["title"] = self.scenarios_settings[str(index+1)]["title"]
+            element["number"] = str(index+1)
+            scenarios.append(element)
+
         context = {
             "display_name": self.display_name,
             "weight": self.weight,
             "question": self.question,
             "max_attempts": self.max_attempts,
+            "lab_scenario": self.lab_scenario,
+            "scenarios": scenarios,
         }
         fragment = Fragment()
         fragment.add_content(
@@ -258,11 +275,11 @@ class DocxCheckerXBlock(XBlock):
         self.docx_analyze["errors"] = []
         
         if str(self.lab_scenario) == "1":
-            # try:
-            result = lab_1_check_answer(default_storage.open(student_path), '/home/edx/edxwork/docx_checker/docx_checker/corrects/lab1_correct.docx')
+            result = lab_1_check_answer(default_storage.open(student_path), '/home/edx/edxwork/docx_checker/docx_checker/corrects/'+self.scenarios_settings[str(self.lab_scenario)]["correct_name"])
             self.docx_analyze = result
-            # except:
-            #     self.docx_analyze["errors"].append("Ошибка открытия файла")
+        if str(self.lab_scenario) == "2":
+            result = lab_2_check_answer(default_storage.open(student_path), '/home/edx/edxwork/docx_checker/docx_checker/corrects/'+self.scenarios_settings[str(self.lab_scenario)]["correct_name"])
+            self.docx_analyze = result
 
         grade_global = check_answer()
         self.points = grade_global
@@ -292,6 +309,8 @@ class DocxCheckerXBlock(XBlock):
 
         if str(self.lab_scenario) == "1":
             pass
+        if str(self.lab_scenario) == "2":
+            pass
 
         return {'result': 'success'}
 
@@ -302,6 +321,7 @@ class DocxCheckerXBlock(XBlock):
     @XBlock.handler
     def download_student_file(self, request, suffix=''):
         path = self._students_storage_path(self.student_docx_uid, self.student_docx_name)
+        
         return self.download(
             path,
             mimetypes.guess_type(self.student_docx_name)[0],
@@ -332,9 +352,10 @@ class DocxCheckerXBlock(XBlock):
         self.student_docx_name = upload.file.name
         self.student_docx_uid = uuid.uuid4().hex
         path = self._students_storage_path(self.student_docx_uid, self.student_docx_name)
+        print '!!!!!!!!!!!!!!!!!!!!!!!!!', path
         if not default_storage.exists(path):
             default_storage.save(path, File(upload.file))
-        obj = get_analyze_the_document(path)
+        obj = path
         return Response(json_body=obj)
 
     def _file_storage_path(self, uid, filename):

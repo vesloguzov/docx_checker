@@ -169,6 +169,54 @@ function DocxCheckerXBlock(runtime, element, data) {
         
     }
 
+    function showLab2FullAnalyze(analyze_object){
+        analyze = analyze_object;
+        $('.analyze-all', element).empty();
+        console.log(analyze);
+                        Object.keys(analyze).map(function(item, i, arr) {
+
+                if (item!="errors"){
+                var one_obj = analyze[item]
+                var criterion_all = document.createElement("div");
+                criterion_all.className = item + " criterion-block";    
+                var criterion_header = document.createElement("div");
+
+                if (item == "cells_alignment"){
+                        criterion_header.innerHTML = "Выравнивание в ячейках";
+                        criterion_all.appendChild(criterion_header);
+
+                        var criterion_element_all = document.createElement("p");
+                        criterion_element_all.innerHTML = one_obj["message"];
+                        criterion_element_all.className = 'one-criterion criterion-complete-'+one_obj["status"];
+                        criterion_all.appendChild(criterion_element_all);
+                }
+
+                if (item == "table_format"){
+                        criterion_header.innerHTML = "Форматирование таблицы";
+                        criterion_all.appendChild(criterion_header);
+
+                        var criterion_element_all = document.createElement("p");
+                        criterion_element_all.innerHTML = one_obj["message"];
+                        criterion_element_all.className = 'one-criterion criterion-complete-'+one_obj["status"];
+                        criterion_all.appendChild(criterion_element_all);
+                }
+
+                 if (item == "table_title"){
+                        criterion_header.innerHTML = "Заголовок таблицы";
+                        criterion_all.appendChild(criterion_header);
+
+                        var criterion_element_all = document.createElement("p");
+                        criterion_element_all.innerHTML = one_obj["message"];
+                        criterion_element_all.className = 'one-criterion criterion-complete-'+one_obj["status"];
+                        criterion_all.appendChild(criterion_element_all);
+                }
+
+                
+                $('.analyze-all', element).append(criterion_all);
+            }
+            });
+    }
+
     function showLabErrors(errors){
         $('.analyze-errors', element).empty();
         errors.forEach(function(item, i, arr) {
@@ -194,6 +242,18 @@ function DocxCheckerXBlock(runtime, element, data) {
                 $('.errors-analyze', element).show();
             }
         }
+        
+        if(lab_scenario == 2){
+            if(analyze_object["errors"].length == 0){
+                showLab2FullAnalyze(analyze_object);
+                $('.full-analyze', element).show();
+            }
+            else{
+                showLabErrors(analyze_object["errors"]);
+                $('.errors-analyze', element).show();
+            }
+        }
+
         $('.block-analyze', element).show(300);
     }
 

@@ -6,15 +6,22 @@
 
   <div id="main-settings">
 
-  <h2>В данный момент доступна одна лабораторная работа Microsoft Office Word</h2>
+  <h2>Лабораторных работ Microsoft Office Word доступно в данный момент: {{scenarios|length}}</h2>
   
  <div class="main-settings-content">
     <select class="select-lab" name="lab_scenario" selected="{{lab_scenario}}">
-        <option {% if lab_scenario == 1 %} selected="selected" {% endif %} value="1">Стилевое форматирование</option>
-       </select>
+      {% for scenario in scenarios %}
+          <option {% if lab_scenario|slugify == scenario.number|slugify %} selected="selected" {% endif %} value="{{scenario.number}}"> {{scenario.title}} </option>
+      {% endfor %}
+    </select>
+
 
      <div id="1" class="group" >
        <p>Описание лабораторной работы по стилевому форматированию ...</p>
+    </div>
+
+    <div id="2" class="group" >
+       <p>Описание лабораторной работы по созданию и форматированию таблиц ...</p>
     </div>
 
 </div>
